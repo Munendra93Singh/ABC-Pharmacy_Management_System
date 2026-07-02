@@ -1,0 +1,6 @@
+@ABC_Pharmacy_Management_System_HostAddress = http://localhost:5041
+
+GET {{ABC_Pharmacy_Management_System_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
