@@ -1,1 +1,146 @@
-<p>add-medicine works!</p>
+<section class="add-medicine-page">
+  <!-- ADD MEDICINE FORM SECTION -->
+  <div class="form-section">
+    <div class="page-header">
+      <div class="header-content">
+        <p class="eyebrow">Add New Medicine</p>
+        <h2>➕ Add Medicine to Inventory</h2>
+        <p class="header-copy">Fill in the form below to add a new medicine to your inventory.</p>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      ✓ {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      ✗ {{ errorMessage }}
+    </div>
+
+    <!-- Add Medicine Form -->
+    <form [formGroup]="addMedicineForm" (ngSubmit)="onAddMedicine()" class="medicine-form">
+      <div class="form-grid">
+        <!-- Medicine Full Name -->
+        <div class="form-group">
+          <label for="fullName">Medicine Name <span class="required">*</span></label>
+          <input
+            type="text"
+            id="fullName"
+            formControlName="fullName"
+            placeholder="e.g., Paracetamol 500mg"
+            class="form-input"
+            [class.error]="fullName?.invalid && fullName?.touched"
+          />
+          <p class="error-message" *ngIf="fullName?.invalid && fullName?.touched">
+            <span *ngIf="fullName?.errors?.['required']">Medicine name is required</span>
+            <span *ngIf="fullName?.errors?.['minlength']">Minimum 3 characters required</span>
+          </p>
+        </div>
+
+        <!-- Brand -->
+        <div class="form-group">
+          <label for="brand">Brand <span class="required">*</span></label>
+          <input
+            type="text"
+            id="brand"
+            formControlName="brand"
+            placeholder="e.g., ABC Pharma"
+            class="form-input"
+            [class.error]="brand?.invalid && brand?.touched"
+          />
+          <p class="error-message" *ngIf="brand?.invalid && brand?.touched">
+            <span *ngIf="brand?.errors?.['required']">Brand is required</span>
+            <span *ngIf="brand?.errors?.['minlength']">Minimum 2 characters required</span>
+          </p>
+        </div>
+
+        <!-- Quantity -->
+        <div class="form-group">
+          <label for="quantity">Quantity <span class="required">*</span></label>
+          <input
+            type="number"
+            id="quantity"
+            formControlName="quantity"
+            placeholder="e.g., 25"
+            class="form-input"
+            [class.error]="quantity?.invalid && quantity?.touched"
+          />
+          <p class="error-message" *ngIf="quantity?.invalid && quantity?.touched">
+            <span *ngIf="quantity?.errors?.['required']">Quantity is required</span>
+            <span *ngIf="quantity?.errors?.['min']">Quantity must be at least 1</span>
+          </p>
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label for="price">Price <span class="required">*</span></label>
+          <input
+            type="number"
+            id="price"
+            formControlName="price"
+            placeholder="e.g., 35.50"
+            step="0.01"
+            class="form-input"
+            [class.error]="price?.invalid && price?.touched"
+          />
+          <p class="error-message" *ngIf="price?.invalid && price?.touched">
+            <span *ngIf="price?.errors?.['required']">Price is required</span>
+            <span *ngIf="price?.errors?.['min']">Price must be greater than 0</span>
+          </p>
+        </div>
+
+        <!-- Expiry Date -->
+        <div class="form-group">
+          <label for="expiryDate">Expiry Date <span class="required">*</span></label>
+          <input
+            type="date"
+            id="expiryDate"
+            formControlName="expiryDate"
+            class="form-input"
+            [class.error]="expiryDate?.invalid && expiryDate?.touched"
+          />
+          <p class="error-message" *ngIf="expiryDate?.invalid && expiryDate?.touched">
+            <span *ngIf="expiryDate?.errors?.['required']">Expiry date is required</span>
+          </p>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <label for="notes">Notes</label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            placeholder="e.g., Pain relief, storage instructions..."
+            class="form-input"
+            rows="2"
+          ></textarea>
+          <p class="error-message" *ngIf="notes?.invalid && notes?.touched">
+            <span *ngIf="notes?.errors?.['minlength']">Minimum 3 characters required</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="addMedicineForm.invalid || isSubmitting"
+        >
+          {{ isSubmitting ? 'Adding...' : '➕ Add Medicine' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="addMedicineForm.reset()"
+          [disabled]="isSubmitting"
+        >
+          Clear Form
+        </button>
+      </div>
+    </form>
+  </div>
+
+</section>

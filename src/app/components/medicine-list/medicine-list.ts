@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MedicineService } from '../../Services/MedicineService';
 
@@ -25,12 +25,18 @@ interface Medicine {
   styleUrl: './medicine-list.css',
 })
 export class MedicineList implements OnInit {
+
   searchTerm = '';
+
+  selectedFilter: 'all' | 'lowStock' | 'expiringSoon' | 'active' = 'all';
+
   medicines: Medicine[] = [];
+
   loading = true;
+
   errorMessage = '';
 
-  constructor(private medicineService: MedicineService, private cdr: ChangeDetectorRef) {}
+  constructor(private medicineService: MedicineService) {}
 
   ngOnInit(): void {
     this.loadMedicines();
@@ -39,65 +45,156 @@ export class MedicineList implements OnInit {
   loadMedicines(): void {
     this.medicineService.getmedicine().subscribe({
       next: (data: Medicine[]) => {
-        console.log('Medicines loaded:', data);
+
         this.medicines = data.map((medicine) => ({
           ...medicine,
-          formattedExpiry: new Date(medicine.expiryDate).toLocaleDateString(),
+          formattedExpiry: new Date(
+            medicine.expiryDate
+          ).toLocaleDateString(),
         }));
+
         this.loading = false;
-        this.cdr.markForCheck();
       },
-      error: (error: any) => {
-        console.error('Failed to load medicines from API:', error);
-        this.errorMessage = 'Unable to load medicines. Please try again later.';
+
+      error: () => {
+        this.errorMessage =
+          'Unable to load medicines. Please try again later.';
+
         this.loading = false;
-        this.cdr.markForCheck();
       },
     });
   }
 
-  trackByMedicineId(index: number, medicine: Medicine): number {
-    return medicine.id;
+  filterMedicines(
+    filter: 'all' | 'lowStock' | 'expiringSoon' | 'active'
+  ): void {
+    this.selectedFilter = filter;
   }
 
   get filteredMedicines(): Medicine[] {
+
+    let filtered = [...this.medicines];
+
+    // Search Filter
+
     const term = this.searchTerm.trim().toLowerCase();
 
-    if (!term) {
-      return this.medicines;
+    if (term) {
+
+      filtered = filtered.filter((medicine) => {
+
+        const medicineName = (
+          medicine.fullName ||
+          medicine.name ||
+          ''
+        ).toLowerCase();
+
+        return medicineName.includes(term);
+
+      });
+
     }
 
-    return this.medicines.filter((medicine) => {
-      const medicineName = (medicine.fullName || medicine.name || '').toLowerCase();
-      return medicineName.includes(term);
-    });
+    // Summary Filter
+
+    switch (this.selectedFilter) {
+
+      case 'lowStock':
+
+        filtered = filtered.filter(
+          (medicine) => medicine.quantity < 10
+        );
+
+        break;
+
+      case 'expiringSoon':
+
+        filtered = filtered.filter(
+          (medicine) =>
+            this.getDaysUntilExpiry(
+              medicine.expiryDate
+            ) < 30
+        );
+
+        break;
+
+      case 'active':
+
+        filtered = filtered.filter(
+          (medicine) =>
+            medicine.quantity >= 10 &&
+            this.getDaysUntilExpiry(
+              medicine.expiryDate
+            ) >= 30
+        );
+
+        break;
+
+      default:
+        break;
+    }
+
+    return filtered;
   }
 
   get lowStockCount(): number {
-    return this.medicines.filter((medicine) => medicine.quantity < 10).length;
+
+    return this.medicines.filter(
+      (medicine) => medicine.quantity < 10
+    ).length;
+
   }
 
   get expiringSoonCount(): number {
-    return this.medicines.filter((medicine) => this.getDaysUntilExpiry(medicine.expiryDate) < 30).length;
+
+    return this.medicines.filter(
+      (medicine) =>
+        this.getDaysUntilExpiry(
+          medicine.expiryDate
+        ) < 30
+    ).length;
+
   }
 
   get activeCount(): number {
+
     return this.medicines.filter((medicine) => {
-      const daysUntilExpiry = this.getDaysUntilExpiry(medicine.expiryDate);
-      return daysUntilExpiry >= 30 && medicine.quantity >= 10;
+
+      return (
+        medicine.quantity >= 10 &&
+        this.getDaysUntilExpiry(
+          medicine.expiryDate
+        ) >= 30
+      );
+
     }).length;
+
+  }
+
+  getDaysUntilExpiry(expiryDate: string): number {
+
+    const today = new Date();
+
+    const expiry = new Date(expiryDate);
+
+    return Math.ceil(
+      (expiry.getTime() - today.getTime()) /
+      (1000 * 60 * 60 * 24)
+    );
+
   }
 
   getStatusClass(medicine: Medicine): string {
-    const today = new Date();
-    const expiryDate = new Date(medicine.expiryDate);
-    const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (daysUntilExpiry < 30 && medicine.quantity < 10) {
+    const days = this.getDaysUntilExpiry(
+      medicine.expiryDate
+    );
+
+    if (days < 30 && medicine.quantity < 10) {
       return 'warning-both';
     }
 
-    if (daysUntilExpiry < 30) {
+    if (days < 30) {
       return 'warning-expiry';
     }
 
@@ -106,26 +203,29 @@ export class MedicineList implements OnInit {
     }
 
     return 'active';
-  }
 
-  getDaysUntilExpiry(expiryDate: string): number {
-    const today = new Date();
-    const expiry = new Date(expiryDate);
-    return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   }
 
   getStatusLabel(medicine: Medicine): string {
-    const daysUntilExpiry = this.getDaysUntilExpiry(medicine.expiryDate);
-    
-    if (daysUntilExpiry < 30 && medicine.quantity < 10) {
+
+    const days = this.getDaysUntilExpiry(
+      medicine.expiryDate
+    );
+
+    if (days < 30 && medicine.quantity < 10) {
       return 'CRITICAL';
     }
-    if (daysUntilExpiry < 30) {
+
+    if (days < 30) {
       return 'EXPIRING SOON';
     }
+
     if (medicine.quantity < 10) {
       return 'LOW STOCK';
     }
+
     return 'ACTIVE';
+
   }
+
 }

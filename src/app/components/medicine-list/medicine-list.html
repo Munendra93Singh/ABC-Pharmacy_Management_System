@@ -3,58 +3,119 @@
     <div class="header-content">
       <p class="eyebrow">Inventory Management</p>
       <h2>💊 Medicines Available</h2>
-      <!-- <p class="header-copy">Track stock levels, expiry dates, and supplier details in a cleaner, more actionable view.</p> -->
+      <!-- <p class="header-copy">
+        Track stock levels, expiry dates, and supplier details.
+      </p> -->
     </div>
+
     <div class="search-container">
       <div class="search-input-wrap">
         <span class="search-icon">🔍</span>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          placeholder="Search by medicine name..."
-          class="search-box"
-        />
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Search by medicine name..." class="search-box" />
       </div>
     </div>
   </div>
 
+  <!-- Summary Cards -->
   <div class="summary-strip" aria-label="Inventory summary">
-    <div class="summary-pill">
-      <span class="summary-label">Total</span>
+
+    <div class="summary-pill" (click)="filterMedicines('all')" [class.active]="selectedFilter === 'all'">
+
+      <span class="summary-label">Total Records</span>
       <strong>{{ medicines.length }}</strong>
+
     </div>
-    <div class="summary-pill warning">
+
+    <div class="summary-pill warning" (click)="filterMedicines('lowStock')"
+      [class.active]="selectedFilter === 'lowStock'">
+
       <span class="summary-label">Low Stock</span>
       <strong>{{ lowStockCount }}</strong>
+
     </div>
-    <div class="summary-pill danger">
+
+    <div class="summary-pill danger" (click)="filterMedicines('expiringSoon')"
+      [class.active]="selectedFilter === 'expiringSoon'">
+
       <span class="summary-label">Expiring Soon</span>
       <strong>{{ expiringSoonCount }}</strong>
+
     </div>
-    <div class="summary-pill success">
+
+    <div class="summary-pill success" (click)="filterMedicines('active')" [class.active]="selectedFilter === 'active'">
+
       <span class="summary-label">Active</span>
       <strong>{{ activeCount }}</strong>
+
     </div>
+
   </div>
 
-  <div class="medicine-grid" *ngIf="filteredMedicines.length; else noResults">
+  <!-- Selected Filter -->
+  <div class="filter-title">
+    <span *ngIf="selectedFilter === 'all'">
+      📋 Showing All Medicines
+    </span>
+
+    <span *ngIf="selectedFilter === 'lowStock'">
+      ⚠️ Showing Low Stock Medicines
+    </span>
+
+    <span *ngIf="selectedFilter === 'expiringSoon'">
+      ⏳ Showing Expiring Soon Medicines
+    </span>
+
+    <span *ngIf="selectedFilter === 'active'">
+      ✅ Showing Active Medicines
+    </span>
+
+  </div>
+
+  <!-- Record Count -->
+  <div class="record-count">
+    Showing <strong>{{ filteredMedicines.length }}</strong>
+    of
+    <strong>{{ medicines.length }}</strong>
+    records
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Loading medicines...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Medicine Cards -->
+  <div class="medicine-grid" *ngIf="!loading && filteredMedicines.length; else noResults">
+
     <article class="medicine-card" *ngFor="let medicine of filteredMedicines" [ngClass]="getStatusClass(medicine)">
+
       <div class="card-header">
         <div>
           <h3>{{ medicine.fullName || medicine.name }}</h3>
-          <p class="card-subtitle">{{ medicine.brand || medicine.category }}</p>
+          <p class="card-subtitle">
+            {{ medicine.brand || medicine.category }}
+          </p>
         </div>
-        <span class="status-badge" [ngClass]="'status-' + getStatusClass(medicine)">{{ getStatusLabel(medicine) }}</span>
+
+        <span class="status-badge" [ngClass]="'status-' + getStatusClass(medicine)">
+          {{ getStatusLabel(medicine) }}
+        </span>
       </div>
 
       <div class="card-content">
         <div class="info-row">
-          <span class="label">📦 Quantity</span>
-          <span class="value" [class.low-stock]="medicine.quantity < 10">{{ medicine.quantity }} units</span>
+          <span class="label">Quantity</span>
+          <span class="value" [class.low-stock]="medicine.quantity < 10">
+            {{ medicine.quantity }} units
+          </span>
         </div>
-
         <div class="info-row">
-          <span class="label">📅 Expiry Date</span>
+          <span class="label">Expiry Date</span>
           <span class="value" [class.expiring-soon]="getDaysUntilExpiry(medicine.expiryDate) < 30">
             {{ medicine.formattedExpiry || medicine.expiryDate }}
             <span class="days-left" *ngIf="getDaysUntilExpiry(medicine.expiryDate) < 30">
@@ -62,25 +123,33 @@
             </span>
           </span>
         </div>
-
         <div class="info-row">
-          <span class="label">💰 Price</span>
-          <span class="value price">${{ medicine.price }}</span>
+          <span class="label">Price</span>
+          <span class="value price">
+            ₹{{ medicine.price }}
+          </span>
         </div>
-
         <div class="info-row" *ngIf="medicine.notes || medicine.supplier">
-          <span class="label">📝 {{ medicine.notes ? 'Notes' : 'Supplier' }}</span>
-          <span class="value">{{ medicine.notes || medicine.supplier }}</span>
+          <span class="label">
+            {{ medicine.notes ? 'Notes' : 'Supplier' }}
+          </span>
+          <span class="value">
+            {{ medicine.notes || medicine.supplier }}
+          </span>
         </div>
       </div>
     </article>
   </div>
-
+  <!-- No Result -->
   <ng-template #noResults>
-    <div class="empty-state">
+    <div class="empty-state" *ngIf="!loading">
       <p class="empty-icon">🔍</p>
-      <p class="empty-text">No medicines match your search.</p>
-      <p class="empty-hint">Try searching with a different name</p>
+      <p class="empty-text">
+        No medicines match your search.
+      </p>
+      <p class="empty-hint">
+        Try searching with a different name.
+      </p>
     </div>
   </ng-template>
 </section>
