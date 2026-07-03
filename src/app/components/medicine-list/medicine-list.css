@@ -1,5 +1,5 @@
 .medicine-list-page {
-  padding: 24px;
+  /* padding: 24px; */
   min-height: 100vh;
 }
 
@@ -135,7 +135,7 @@
 
 .medicine-card {
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #16149b54;
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
