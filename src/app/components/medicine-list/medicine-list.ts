@@ -1,33 +1,64 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MedicineService } from '../../Services/MedicineService';
 
 interface Medicine {
   id: number;
-  name: string;
-  category: string;
+  name?: string;
+  fullName?: string;
+  category?: string;
   quantity: number;
   expiryDate: string;
+  formattedExpiry?: string;
   price: number;
-  supplier: string;
+  supplier?: string;
+  notes?: string;
+  brand?: string;
 }
 
 @Component({
   selector: 'app-medicine-list',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './medicine-list.html',
   styleUrl: './medicine-list.css',
 })
-export class MedicineList {
+export class MedicineList implements OnInit {
   searchTerm = '';
+  medicines: Medicine[] = [];
+  loading = true;
+  errorMessage = '';
 
-  medicines: Medicine[] = [
-    { id: 1, name: 'Paracetamol', category: 'Pain Relief', quantity: 25, expiryDate: '2026-10-20', price: 3.5, supplier: 'MediSup' },
-    { id: 2, name: 'Amoxicillin', category: 'Antibiotic', quantity: 6, expiryDate: '2026-08-15', price: 8.2, supplier: 'HealthPlus' },
-    { id: 3, name: 'Vitamin C', category: 'Supplement', quantity: 40, expiryDate: '2026-07-12', price: 5.8, supplier: 'WellCare' },
-    { id: 4, name: 'Ibuprofen', category: 'Pain Relief', quantity: 9, expiryDate: '2026-12-01', price: 4.2, supplier: 'NorthPharm' },
-    { id: 5, name: 'Cough Syrup', category: 'Cold & Flu', quantity: 14, expiryDate: '2027-01-25', price: 6.7, supplier: 'CareLab' },
-  ];
+  constructor(private medicineService: MedicineService, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    this.loadMedicines();
+  }
+
+  loadMedicines(): void {
+    this.medicineService.getmedicine().subscribe({
+      next: (data: Medicine[]) => {
+        console.log('Medicines loaded:', data);
+        this.medicines = data.map((medicine) => ({
+          ...medicine,
+          formattedExpiry: new Date(medicine.expiryDate).toLocaleDateString(),
+        }));
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: (error: any) => {
+        console.error('Failed to load medicines from API:', error);
+        this.errorMessage = 'Unable to load medicines. Please try again later.';
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  trackByMedicineId(index: number, medicine: Medicine): number {
+    return medicine.id;
+  }
 
   get filteredMedicines(): Medicine[] {
     const term = this.searchTerm.trim().toLowerCase();
@@ -36,7 +67,10 @@ export class MedicineList {
       return this.medicines;
     }
 
-    return this.medicines.filter((medicine) => medicine.name.toLowerCase().includes(term));
+    return this.medicines.filter((medicine) => {
+      const medicineName = (medicine.fullName || medicine.name || '').toLowerCase();
+      return medicineName.includes(term);
+    });
   }
 
   get lowStockCount(): number {

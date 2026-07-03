@@ -41,8 +41,8 @@
     <article class="medicine-card" *ngFor="let medicine of filteredMedicines" [ngClass]="getStatusClass(medicine)">
       <div class="card-header">
         <div>
-          <h3>{{ medicine.name }}</h3>
-          <p class="card-subtitle">{{ medicine.category }}</p>
+          <h3>{{ medicine.fullName || medicine.name }}</h3>
+          <p class="card-subtitle">{{ medicine.brand || medicine.category }}</p>
         </div>
         <span class="status-badge" [ngClass]="'status-' + getStatusClass(medicine)">{{ getStatusLabel(medicine) }}</span>
       </div>
@@ -56,7 +56,7 @@
         <div class="info-row">
           <span class="label">📅 Expiry Date</span>
           <span class="value" [class.expiring-soon]="getDaysUntilExpiry(medicine.expiryDate) < 30">
-            {{ medicine.expiryDate }}
+            {{ medicine.formattedExpiry || medicine.expiryDate }}
             <span class="days-left" *ngIf="getDaysUntilExpiry(medicine.expiryDate) < 30">
               ({{ getDaysUntilExpiry(medicine.expiryDate) }} days left)
             </span>
@@ -68,9 +68,9 @@
           <span class="value price">${{ medicine.price }}</span>
         </div>
 
-        <div class="info-row">
-          <span class="label">🏢 Supplier</span>
-          <span class="value">{{ medicine.supplier }}</span>
+        <div class="info-row" *ngIf="medicine.notes || medicine.supplier">
+          <span class="label">📝 {{ medicine.notes ? 'Notes' : 'Supplier' }}</span>
+          <span class="value">{{ medicine.notes || medicine.supplier }}</span>
         </div>
       </div>
     </article>
