@@ -2,10 +2,7 @@
   <div class="page-header">
     <div class="header-content">
       <p class="eyebrow">Inventory Management</p>
-      <h2>💊 Medicines Available</h2>
-      <!-- <p class="header-copy">
-        Track stock levels, expiry dates, and supplier details.
-      </p> -->
+      <h2>💊 Medicines Available</h2>     
     </div>
 
     <div class="search-container">
@@ -18,9 +15,7 @@
 
   <!-- Summary Cards -->
   <div class="summary-strip" aria-label="Inventory summary">
-
     <div class="summary-pill" (click)="filterMedicines('all')" [class.active]="selectedFilter === 'all'">
-
       <span class="summary-label">Total Records</span>
       <strong>{{ medicines.length }}</strong>
 
@@ -28,7 +23,6 @@
 
     <div class="summary-pill warning" (click)="filterMedicines('lowStock')"
       [class.active]="selectedFilter === 'lowStock'">
-
       <span class="summary-label">Low Stock</span>
       <strong>{{ lowStockCount }}</strong>
 
@@ -51,33 +45,7 @@
 
   </div>
 
-  <!-- Selected Filter -->
-  <div class="filter-title">
-    <span *ngIf="selectedFilter === 'all'">
-      📋 Showing All Medicines
-    </span>
-
-    <span *ngIf="selectedFilter === 'lowStock'">
-      ⚠️ Showing Low Stock Medicines
-    </span>
-
-    <span *ngIf="selectedFilter === 'expiringSoon'">
-      ⏳ Showing Expiring Soon Medicines
-    </span>
-
-    <span *ngIf="selectedFilter === 'active'">
-      ✅ Showing Active Medicines
-    </span>
-
-  </div>
-
-  <!-- Record Count -->
-  <div class="record-count">
-    Showing <strong>{{ filteredMedicines.length }}</strong>
-    of
-    <strong>{{ medicines.length }}</strong>
-    records
-  </div>
+  
 
   <!-- Loading -->
   <div *ngIf="loading" class="loading">

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MedicineService } from '../../Services/MedicineService';
 
@@ -25,18 +25,15 @@ interface Medicine {
   styleUrl: './medicine-list.css',
 })
 export class MedicineList implements OnInit {
-
   searchTerm = '';
-
   selectedFilter: 'all' | 'lowStock' | 'expiringSoon' | 'active' = 'all';
-
   medicines: Medicine[] = [];
-
   loading = true;
-
   errorMessage = '';
 
-  constructor(private medicineService: MedicineService) {}
+  constructor(
+    private medicineService: MedicineService,
+   private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadMedicines();
@@ -54,6 +51,7 @@ export class MedicineList implements OnInit {
         }));
 
         this.loading = false;
+          this.cdr.detectChanges();
       },
 
       error: () => {

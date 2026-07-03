@@ -91,7 +91,7 @@
 
 .summary-pill {
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid  #222324a6;;
   border-radius: 12px;
   padding: 6px 8px;
   display: flex;
@@ -102,15 +102,16 @@
 }
 
 .summary-pill.warning {
-  border-color: #fde68a;
+  /* border-color: #a1861a; */
+      border-color: #9d8112;
 }
 
 .summary-pill.danger {
-  border-color: #fecaca;
+  border-color: #c72121;
 }
 
 .summary-pill.success {
-  border-color: #bbf7d0;
+  border-color: #0c0b70;
 }
 
 .summary-label {
@@ -291,12 +292,12 @@
 }
 
 .medicine-card.warning-both {
-  border-color: #fca5a5;
+  border-color: #cda431;
   background: linear-gradient(135deg, #fff5f5, #fff0f0);
 }
 
 .medicine-card.warning-both::before {
-  background: linear-gradient(90deg, #991b1b, #dc2626);
+  background: linear-gradient(90deg, #eaebc3, #c1bd3b);
 }
 
 .empty-state {
