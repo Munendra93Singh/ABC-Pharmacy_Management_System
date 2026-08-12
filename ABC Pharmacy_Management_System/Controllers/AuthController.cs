@@ -25,12 +25,15 @@ namespace ABC_Pharmacy_Management_System.Controllers
             if (token == null)
                 return Unauthorized("Invalid credentials.");
 
-            return Ok(new { token });
+            return Ok(new { token, message = "Login successful" });
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest("Username, email, and password are required.");
+
             try
             {
                 var user = new User
@@ -41,11 +44,24 @@ namespace ABC_Pharmacy_Management_System.Controllers
                 };
 
                 await _authService.RegisterAsync(user, request.Password);
-                return Ok("User registered successfully.");
+
+                return Ok(new
+                {
+                    message = "User registered successfully",
+                    user = new
+                    {
+                        id = user.Id,
+                        username = user.Username,
+                        email = user.Email,
+                        role = user.Role,
+                        token = user.Token,
+                        registeredAt = user.RegisteredAt
+                    }
+                });
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

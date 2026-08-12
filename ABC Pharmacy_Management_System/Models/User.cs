@@ -11,5 +11,9 @@ namespace ABC_Pharmacy_Management_System.Models
         public string PasswordHash { get; set; } = string.Empty;
 
         public string Role { get; set; } = "User";
+
+        public string? Token { get; set; }
+
+        public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
     }
 }
