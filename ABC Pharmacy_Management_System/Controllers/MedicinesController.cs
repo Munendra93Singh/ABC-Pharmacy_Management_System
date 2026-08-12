@@ -1,6 +1,8 @@
 ﻿using ABC_Pharmacy_Management_System.IServices;
 using ABC_Pharmacy_Management_System.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ABC_Pharmacy_Management_System.Controllers
 {
