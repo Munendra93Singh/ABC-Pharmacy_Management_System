@@ -1,5 +1,6 @@
 ﻿namespace ABC_Pharmacy_Management_System.Models
 {
+    [Serialization]
     public class Medicine
     {
         public int Id { get; set; }
