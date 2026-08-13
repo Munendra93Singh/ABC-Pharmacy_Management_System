@@ -40,7 +40,6 @@ export class AddMedicine {
   }
 
   onAddMedicine(): void {
-
     if (this.addMedicineForm.invalid) {
       this.errorMessage = 'Please fill all required fields correctly';
       return;
