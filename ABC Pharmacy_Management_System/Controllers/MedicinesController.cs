@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ABC_Pharmacy_Management_System.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
+    [ApiController]   
     public class MedicinesController : ControllerBase
     {
         private readonly IMedicineService _medicineService;
@@ -39,7 +38,6 @@ namespace ABC_Pharmacy_Management_System.Controllers
 
         // POST: api/medicines
         [HttpPost]
-        [Authorize(Roles = "Admin")]
         public IActionResult AddMedicine([FromBody] Medicine medicine)
         {
             _medicineService.AddMedicine(medicine);

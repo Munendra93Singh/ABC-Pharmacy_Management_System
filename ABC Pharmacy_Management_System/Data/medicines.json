@@ -72,12 +72,12 @@
     "Brand": "XYZ Farma Company"
   },
   {
-    "Id": 9,
-    "FullName": "Soni",
-    "Notes": "Relex for Munendra",
-    "ExpiryDate": "2102-02-03T00:00:00",
-    "Quantity": 1,
+    "Id": 10,
+    "FullName": "Citrigen",
+    "Notes": "Good",
+    "ExpiryDate": "2028-06-18T00:00:00",
+    "Quantity": 100,
     "Price": 100,
-    "Brand": "Khatima"
+    "Brand": "ABC Medishop"
   }
 ]

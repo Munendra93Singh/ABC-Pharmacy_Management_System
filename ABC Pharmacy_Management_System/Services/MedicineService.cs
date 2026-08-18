@@ -2,6 +2,7 @@
 using ABC_Pharmacy_Management_System.Models;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ABC_Pharmacy_Management_System.Services
 {
@@ -9,11 +10,15 @@ namespace ABC_Pharmacy_Management_System.Services
     {
         private readonly string _filePath;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly ILogger<MedicineService> _logger;
 
-        public MedicineService(IWebHostEnvironment env)
+        public MedicineService(IWebHostEnvironment env, ILogger<MedicineService> logger)
         {
-            // Resolve the file relative to the app content root
+            _logger = logger;
             _filePath = Path.Combine(env.ContentRootPath, "Data", "medicines.json");
+            
+            _logger.LogInformation($"Medicine file path: {_filePath}");
+            _logger.LogInformation($"File exists: {File.Exists(_filePath)}");
 
             _jsonOptions = new JsonSerializerOptions
             {
@@ -25,20 +30,27 @@ namespace ABC_Pharmacy_Management_System.Services
         public List<Medicine> GetAllMedicines()
         {
             if (!File.Exists(_filePath))
+            {
+                _logger.LogWarning($"Medicine file not found at {_filePath}");
                 return new List<Medicine>();
+            }
 
             var json = File.ReadAllText(_filePath);
+            _logger.LogInformation($"Read JSON: {json.Substring(0, Math.Min(100, json.Length))}...");
+
             if (string.IsNullOrWhiteSpace(json))
                 return new List<Medicine>();
 
             try
             {
-                return JsonSerializer.Deserialize<List<Medicine>>(json, _jsonOptions)
+                var medicines = JsonSerializer.Deserialize<List<Medicine>>(json, _jsonOptions) 
                        ?? new List<Medicine>();
+                _logger.LogInformation($"Successfully deserialized {medicines.Count} medicines");
+                return medicines;
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
-                // Try to recover: maybe file contains a single Medicine object instead of an array
+                _logger.LogError($"JSON Deserialization error: {ex.Message}");
                 try
                 {
                     var single = JsonSerializer.Deserialize<Medicine>(json, _jsonOptions);
@@ -47,14 +59,13 @@ namespace ABC_Pharmacy_Management_System.Services
                 }
                 catch
                 {
-                    // ignore and fall through to return empty list
+                    _logger.LogError("Failed to deserialize as single object");
                 }
-
                 return new List<Medicine>();
             }
-            catch
+            catch (Exception ex)
             {
-                // Any other error, return empty list
+                _logger.LogError($"Unexpected error: {ex.Message}");
                 return new List<Medicine>();
             }
         }
@@ -67,20 +78,17 @@ namespace ABC_Pharmacy_Management_System.Services
         public void AddMedicine(Medicine medicine)
         {
             var medicines = GetAllMedicines();
-
-            medicine.Id = medicines.Count == 0
-                ? 1
-                : medicines.Max(x => x.Id) + 1;
-
+            medicine.Id = medicines.Count == 0 ? 1 : medicines.Max(x => x.Id) + 1;
             medicines.Add(medicine);
 
             var json = JsonSerializer.Serialize(medicines, _jsonOptions);
-
             var dir = Path.GetDirectoryName(_filePath);
+            
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
             File.WriteAllText(_filePath, json);
+            _logger.LogInformation($"Added medicine. Total count: {medicines.Count}");
         }
 
         public List<Medicine> SearchMedicine(string name)
